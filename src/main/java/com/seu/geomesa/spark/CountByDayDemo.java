@@ -37,6 +37,7 @@ public class CountByDayDemo {
         sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer");
         sparkConf.registerKryoClasses(new Class[] {ImmutableBytesWritable.class, Result.class});
         SparkSession sparkSession = SparkSession.builder().appName("CountByDayDemo")
+                .master("local[*]")
                 .config(sparkConf)
                 .getOrCreate();
 

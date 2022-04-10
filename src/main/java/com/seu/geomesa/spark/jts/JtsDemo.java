@@ -1,4 +1,4 @@
-package com.seu.geomesa.spark.jts;
+package com.seu.geomesa.scala.spark.jts;
 
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
