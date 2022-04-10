@@ -16,17 +16,15 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <spark.version>2.0.2</spark.version>
-    <scala.abi.version>2.11</scala.abi.version>
+    <spark.version>3.0.2</spark.version>
+    <scala.abi.version>2.12</scala.abi.version>
+    <scala.version>2.12.7</scala.version>
     <hbase.version>2.2.2</hbase.version>
     <geomesa.version>3.3.0</geomesa.version>
     <zookeeper.version>3.4.14</zookeeper.version>
-    <hadoop.version>2.8.5</hadoop.version>
+    <hadoop.version>3.2.0</hadoop.version>
+    <lombok.version>1.18.22</lombok.version>
   </properties>
-
-  <build>
-
-  </build>
 
   <dependencies>
     <!-- Spark -->
@@ -34,19 +32,22 @@
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_${scala.abi.version}</artifactId>
       <version>${spark.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-sql_${scala.abi.version}</artifactId>
       <version>${spark.version}</version>
-      <scope>provided</scope>
     </dependency>
 
     <!-- GeoMesa Spark -->
     <dependency>
       <groupId>org.locationtech.geomesa</groupId>
-      <artifactId>geomesa-spark-core_2.11</artifactId>
+      <artifactId>geomesa-spark-core_${scala.abi.version}</artifactId>
+      <version>${geomesa.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.locationtech.geomesa</groupId>
+      <artifactId>geomesa-spark-jts_2.12</artifactId>
       <version>${geomesa.version}</version>
     </dependency>
 
@@ -123,7 +124,14 @@
       <version>1.2.17</version>
     </dependency>
 
-    <!-- Test -->
+    <!-- lombok -->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+    </dependency>
+
+    <!-- com.seu.geomesa.spark.Test -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -131,4 +139,16 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+<!--        <excludes>-->
+<!--          <exclude>**/*.xml</exclude>-->
+<!--        </excludes>-->
+      </resource>
+    </resources>
+  </build>
 </project>

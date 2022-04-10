@@ -4,7 +4,6 @@ package com.seu.geomesa.spark;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -22,16 +21,18 @@ import org.locationtech.geomesa.spark.GeoMesaSpark;
 import org.locationtech.geomesa.spark.SpatialRDD;
 import org.locationtech.geomesa.spark.SpatialRDDProvider;
 import org.locationtech.geomesa.utils.geohash.GeoHash;
+import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.PropertyName;
 
 import com.seu.utils.ScalaUtil;
 
+import lombok.extern.slf4j.Slf4j;
 import scala.Tuple2;
 
 @Slf4j
-public class CountByDayDemo {
+public class CountByGeoHashDemo {
     public static void main(String[] args) throws CQLException {
         SparkConf sparkConf = new SparkConf();
         sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer");
@@ -57,15 +58,14 @@ public class CountByDayDemo {
         Configuration configuration = new Configuration();
         SpatialRDD rdd = spatialRDDProvider.rdd(configuration, sparkSession.sparkContext(), scalaParams, query);
         JavaRDD<SimpleFeature> simpleFeatureJavaRDD = rdd.toJavaRDD();
-        JavaPairRDD<String, Integer> pairRDD = simpleFeatureJavaRDD
-            .mapPartitionsToPair((PairFlatMapFunction<Iterator<SimpleFeature>, String, Integer>) partition -> {
-                List<Tuple2<String, Integer>> list = new ArrayList<>();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
-                PropertyName dtg = filterFactory2.property("dtg");
+        JavaPairRDD<GeoHash, Integer> pairRDD = simpleFeatureJavaRDD
+            .mapPartitionsToPair((PairFlatMapFunction<Iterator<SimpleFeature>, GeoHash, Integer>) partition -> {
+                List<Tuple2<GeoHash, Integer>> list = new ArrayList<>();
                 while (partition.hasNext()) {
                     SimpleFeature simpleFeature = partition.next();
-                    Tuple2<String, Integer> tuple = new Tuple2<>(sdf.format(dtg.evaluate(simpleFeature)), 1);
+                    Point point = (Point) simpleFeature.getDefaultGeometry();
+                    GeoHash geohash = GeoHash.apply(point, 25);
+                    Tuple2<GeoHash, Integer> tuple = new Tuple2<>(geohash, 1);
                     list.add(tuple);
                 }
                 return list.iterator();
